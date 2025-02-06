@@ -1,0 +1,86 @@
+def load(instrucc):
+    direccion = 0
+    carga = 0
+    for i in range(3, 8):
+        direccion = direccion * 2 + instrucc[0][i]
+    for i in range(3, 8):
+        carga = carga * 2 + instrucc[direccion][i]
+    return carga
+
+def add(instrucc, carga):
+    direccion_2 = 0
+    suma = 0
+    val = 0
+    for i in range(3, 8):
+        direccion_2 = direccion_2 * 2 + instrucc[1][i]
+    for i in range(3, 8):
+        val = val * 2 + instrucc[direccion_2][i]
+    suma = carga + val
+    return suma
+
+def store(instrucc, suma):
+    direccion_3 = 0
+    print("\nEl acumulador es:", suma)
+    for i in range(3, 8):
+        direccion_3 = direccion_3 * 2 + instrucc[2][i]
+    for i in range(7, 2, -1):
+        instrucc[direccion_3][i] = suma % 2
+        suma //= 2
+
+def jump(instrucc):
+    direccion_4 = 0
+    for i in range(3, 8):
+        direccion_4 = direccion_4 * 2 + instrucc[3][i]
+    return direccion_4
+
+def main():
+    instrucc = [[0] * 8 for _ in range(8)]
+    
+    with open("binario.txt", "r") as f:
+        i = 0
+        for line in f:
+            for j in range(8):
+                instrucc[i][j] = int(line[j])
+            i += 1
+
+    val_ini = load(instrucc)
+    print("\nEl acumulador es:", val_ini)
+    print("\nMEMORIA\n")
+    for i in range(8):
+        if i == 6:
+            print("asignacion de memoria-> ", end="")
+        for j in range(8):
+            print(instrucc[i][j], end="")
+        print()
+
+    iteracion = 1
+    while iteracion < 31:
+        charge = 0
+        sum = 0
+        val = 0
+        opc = 0
+        for i in range(8):
+            opc = 0
+            for j in range(3):
+                opc = opc * 2 + instrucc[i][j]
+            if opc == 4:
+                charge = load(instrucc)
+            elif opc == 5:
+                sum = add(instrucc, charge)
+            elif opc == 6:
+                store(instrucc, sum)
+            elif opc == 2:
+                val = jump(instrucc)
+        iteracion += val
+
+        # IMPRESION DE LA MEMORIA POR ITERACION
+        print("\nMEMORIA\n")
+        for i in range(8):
+            if i == 6:
+                print("asignacion de memoria-> ", end="")
+            for j in range(8):
+                print(instrucc[i][j], end="")
+            print()
+
+if __name__ == "__main__":
+    main()

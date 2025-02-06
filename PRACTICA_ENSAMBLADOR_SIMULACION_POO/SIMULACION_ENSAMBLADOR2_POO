@@ -1,0 +1,87 @@
+class CICLO_FETCH_EXECUTE:  #CLASE CICLO FETCH-EXECUTE
+    #METODO CONSTRUCTOR
+    def __init__(self, instrucc): 
+        self.instrucc = instrucc #atributo intrcciones
+        self.acumulador = 1 #atributo acumulador
+        self.index = 0  #atributo índice (fila)
+
+    #METODO 1
+    def decimal(self, fila): #convertir de binario a decimal 
+        valor_decimal = 0
+        for i in range(3, 8):
+            potencia = 1
+            for j in range(7 - i):
+                potencia *= 2
+            valor_decimal += self.instrucc[fila][i] * potencia
+        return valor_decimal
+
+    #METODO 2
+    def binario(self, fila, acum): #convertir de decimal a binario y almacenarlo 
+        for i in range(7, 2, -1):
+            self.instrucc[fila][i] = 0
+        for i in range(7, 2, -1):
+            if acum == 1:
+                self.instrucc[fila][i] = 1
+                break
+            else:
+                self.instrucc[fila][i] = acum % 2
+                acum //= 2
+
+    #METODO 3
+    def ejecutar_instruccion(self): #ejecución de las instrucciones del la RAM
+        instruccion = self.instrucc[self.index][0] * 100 + self.instrucc[self.index][1] * 10 + self.instrucc[self.index][2]
+        direccion = 0
+
+        if instruccion == 100:
+            direccion = self.decimal(self.index)
+            self.acumulador = self.decimal(direccion)
+
+        elif instruccion == 101:
+            direccion = self.decimal(self.index)
+            self.acumulador += self.decimal(direccion)
+
+        elif instruccion == 110:
+            direccion = self.decimal(self.index)
+            self.binario(direccion, self.acumulador)
+
+        elif instruccion == 10:
+            self.index = 0
+
+            print("\n\n     ", self.acumulador)
+            for k in range(8):
+                print(k, end=". ")
+                for j in range(8):
+                    print(self.instrucc[k][j], end="")
+                print()
+
+        else:
+            print("\nEsa instrucción no existe")
+
+        self.index += 1
+
+
+def main():
+    instrucc = [[0] * 8 for _ in range(8)]
+
+    with open("binario.txt", "r") as f:
+        i = 0
+        for line in f:
+            for j in range(8):
+                instrucc[i][j] = int(line[j])
+            i += 1
+
+    programa = CICLO_FETCH_EXECUTE(instrucc)
+
+    print("     ", programa.acumulador)
+    for i in range(8):
+        print(i, end=". ")
+        for j in range(8):
+            print(instrucc[i][j], end="")
+        print()
+
+    while programa.acumulador < 32:
+        programa.ejecutar_instruccion()
+
+
+if __name__ == "__main__":
+    main()
